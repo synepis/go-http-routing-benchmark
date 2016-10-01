@@ -32,7 +32,6 @@ import (
 	"github.com/gocraft/web"
 	"github.com/gorilla/mux"
 	"github.com/julienschmidt/httprouter"
-	"github.com/labstack/echo"
 	llog "github.com/lunny/log"
 	"github.com/lunny/tango"
 	vulcan "github.com/mailgun/route"
@@ -47,8 +46,6 @@ import (
 	"github.com/rcrowley/go-tigertonic"
 	"github.com/revel/revel"
 	"github.com/robfig/pathtree"
-	"github.com/typepress/rivet"
-	"github.com/ursiform/bear"
 	"github.com/vanng822/r2router"
 	goji "github.com/zenazn/goji/web"
 	gojiv2 "goji.io"
@@ -133,47 +130,6 @@ func loadAce(routes []route) http.Handler {
 func loadAceSingle(method, path string, handle ace.HandlerFunc) http.Handler {
 	router := ace.New()
 	router.Handle(method, path, []ace.HandlerFunc{handle})
-	return router
-}
-
-// bear
-func bearHandler(_ http.ResponseWriter, _ *http.Request, _ *bear.Context) {}
-
-func bearHandlerWrite(w http.ResponseWriter, _ *http.Request, ctx *bear.Context) {
-	io.WriteString(w, ctx.Params["name"])
-}
-
-func bearHandlerTest(w http.ResponseWriter, r *http.Request, _ *bear.Context) {
-	io.WriteString(w, r.RequestURI)
-}
-
-func loadBear(routes []route) http.Handler {
-	h := bearHandler
-	if loadTestHandler {
-		h = bearHandlerTest
-	}
-
-	router := bear.New()
-	re := regexp.MustCompile(":([^/]*)")
-	for _, route := range routes {
-		switch route.method {
-		case "GET", "POST", "PUT", "PATCH", "DELETE":
-			router.On(route.method, re.ReplaceAllString(route.path, "{$1}"), h)
-		default:
-			panic("Unknown HTTP method: " + route.method)
-		}
-	}
-	return router
-}
-
-func loadBearSingle(method string, path string, handler bear.HandlerFunc) http.Handler {
-	router := bear.New()
-	switch method {
-	case "GET", "POST", "PUT", "PATCH", "DELETE":
-		router.On(method, path, handler)
-	default:
-		panic("Unknown HTTP method: " + method)
-	}
 	return router
 }
 
@@ -327,66 +283,6 @@ func loadDencoSingle(method, path string, h denco.HandlerFunc) http.Handler {
 		panic(err)
 	}
 	return handler
-}
-
-// Echo
-func echoHandler(c *echo.Context) error {
-	return nil
-}
-
-func echoHandlerWrite(c *echo.Context) error {
-	io.WriteString(c.Response(), c.Param("name"))
-	return nil
-}
-
-func echoHandlerTest(c *echo.Context) error {
-	io.WriteString(c.Response(), c.Request().RequestURI)
-	return nil
-}
-
-func loadEcho(routes []route) http.Handler {
-	var h interface{} = echoHandler
-	if loadTestHandler {
-		h = echoHandlerTest
-	}
-
-	e := echo.New()
-	for _, r := range routes {
-		switch r.method {
-		case "GET":
-			e.Get(r.path, h)
-		case "POST":
-			e.Post(r.path, h)
-		case "PUT":
-			e.Put(r.path, h)
-		case "PATCH":
-			e.Patch(r.path, h)
-		case "DELETE":
-			e.Delete(r.path, h)
-		default:
-			panic("Unknow HTTP method: " + r.method)
-		}
-	}
-	return e
-}
-
-func loadEchoSingle(method, path string, h interface{}) http.Handler {
-	e := echo.New()
-	switch method {
-	case "GET":
-		e.Get(path, h)
-	case "POST":
-		e.Post(path, h)
-	case "PUT":
-		e.Put(path, h)
-	case "PATCH":
-		e.Patch(path, h)
-	case "DELETE":
-		e.Delete(path, h)
-	default:
-		panic("Unknow HTTP method: " + method)
-	}
-	return e
 }
 
 // Gin
@@ -1250,38 +1146,6 @@ func loadRevelSingle(method, path, action string) http.Handler {
 	rc := new(RevelController)
 	rc.router = router
 	return rc
-}
-
-// Rivet
-func rivetHandler() {}
-
-func rivetHandlerWrite(c rivet.Context) {
-	c.WriteString(c.Get("name"))
-}
-
-func rivetHandlerTest(c rivet.Context) {
-	c.WriteString(c.Req.RequestURI)
-}
-
-func loadRivet(routes []route) http.Handler {
-	var h interface{} = rivetHandler
-	if loadTestHandler {
-		h = rivetHandlerTest
-	}
-
-	router := rivet.New()
-	for _, route := range routes {
-		router.Handle(route.method, route.path, h)
-	}
-	return router
-}
-
-func loadRivetSingle(method, path string, handler interface{}) http.Handler {
-	router := rivet.New()
-
-	router.Handle(method, path, handler)
-
-	return router
 }
 
 // Tango
