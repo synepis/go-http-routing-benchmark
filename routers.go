@@ -23,6 +23,7 @@ import (
 	"github.com/astaxie/beego/context"
 	"github.com/bmizerany/pat"
 	"github.com/go-playground/lars"
+	"github.com/synepis/yar"
 	// "github.com/daryl/zeus"
 	"github.com/dimfeld/httptreemux"
 	"github.com/emicklei/go-restful"
@@ -1302,6 +1303,38 @@ func loadVulcanSingle(method, path string, handler http.HandlerFunc) http.Handle
 		panic(err)
 	}
 	return mux
+}
+
+// Yar
+func yarHandle(_ http.ResponseWriter, _ *http.Request) {}
+
+func yarHandleWrite(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, yar.GetParam(r, "name"))
+}
+
+func yarHandleTest(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, r.RequestURI)
+}
+
+func loadYar(routes []route) http.Handler {
+	h := yarHandle
+	if loadTestHandler {
+		h = yarHandleTest
+	}
+
+	router := yar.NewRouter()
+	router.ShouldLog = false
+	for _, route := range routes {
+		router.AddHandle(route.method, route.path, h)
+	}
+	return router
+}
+
+func loadYarSingle(method, path string, handler http.HandlerFunc) http.Handler {
+	router := yar.NewRouter()
+	router.ShouldLog = false
+	router.AddHandler(method, path, handler)
+	return router
 }
 
 // Zeus

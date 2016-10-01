@@ -81,6 +81,7 @@ var (
 	parseTigerTonic  http.Handler
 	parseTraffic     http.Handler
 	parseVulcan      http.Handler
+	parseYar         http.Handler
 	// parseZeus        http.Handler
 )
 
@@ -161,6 +162,9 @@ func init() {
 	})
 	calcMem("Vulcan", func() {
 		parseVulcan = loadVulcan(parseAPI)
+	})
+	calcMem("Yar", func() {
+		parseYar = loadYar(parseAPI)
 	})
 	// calcMem("Zeus", func() {
 	// 	parseZeus = loadZeus(parseAPI)
@@ -270,6 +274,10 @@ func BenchmarkVulcan_ParseStatic(b *testing.B) {
 	req, _ := http.NewRequest("GET", "/1/users", nil)
 	benchRequest(b, parseVulcan, req)
 }
+func BenchmarkYar_ParseStatic(b *testing.B) {
+	req, _ := http.NewRequest("GET", "/1/users", nil)
+	benchRequest(b, parseYar, req)
+}
 
 // func BenchmarkZeus_ParseStatic(b *testing.B) {
 // 	req, _ := http.NewRequest("GET", "/1/users", nil)
@@ -376,6 +384,10 @@ func BenchmarkTraffic_ParseParam(b *testing.B) {
 func BenchmarkVulcan_ParseParam(b *testing.B) {
 	req, _ := http.NewRequest("GET", "/1/classes/go", nil)
 	benchRequest(b, parseVulcan, req)
+}
+func BenchmarkYar_ParseParam(b *testing.B) {
+	req, _ := http.NewRequest("GET", "/1/classes/go", nil)
+	benchRequest(b, parseYar, req)
 }
 
 // func BenchmarkZeus_ParseParam(b *testing.B) {
@@ -484,6 +496,10 @@ func BenchmarkVulcan_Parse2Params(b *testing.B) {
 	req, _ := http.NewRequest("GET", "/1/classes/go/123456789", nil)
 	benchRequest(b, parseVulcan, req)
 }
+func BenchmarkYar_Parse2Params(b *testing.B) {
+	req, _ := http.NewRequest("GET", "/1/classes/go/123456789", nil)
+	benchRequest(b, parseYar, req)
+}
 
 // func BenchmarkZeus_Parse2Params(b *testing.B) {
 // 	req, _ := http.NewRequest("GET", "/1/classes/go/123456789", nil)
@@ -565,6 +581,9 @@ func BenchmarkTraffic_ParseAll(b *testing.B) {
 }
 func BenchmarkVulcan_ParseAll(b *testing.B) {
 	benchRoutes(b, parseVulcan, parseAPI)
+}
+func BenchmarkYar_ParseAll(b *testing.B) {
+	benchRoutes(b, parseYar, parseAPI)
 }
 
 // func BenchmarkZeus_ParseAll(b *testing.B) {

@@ -37,6 +37,7 @@ var (
 		{"TigerTonic", loadTigerTonic},
 		{"Traffic", loadTraffic},
 		{"Vulcan", loadVulcan},
+		{"Yar", loadYar},
 		// {"Zeus", loadZeus},
 	}
 
